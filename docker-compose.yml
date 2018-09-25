@@ -1,6 +1,7 @@
 version: '3'
 
 services:
+
   nginx:
     build:
       context: ./nginx
@@ -9,6 +10,7 @@ services:
         - "${HTTPS_PORT}:443"
     volumes:
         - ${CODE_BASE_DIR}:/var/www
+        
   php:
     build:
       context: ./php-fpm
@@ -16,6 +18,24 @@ services:
         - PHP_VERSION=${PHP_VERSION}
     volumes:
         - ${CODE_BASE_DIR}:/var/www
+        
+  mysql:
+    build:
+      context: ./mysql
+      args:
+        - MYSQL_VERSION=${MYSQL_VERSION}
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - TZ=${WORKSPACE_TIMEZONE}
+    volumes:
+      - ${DATA_PATH_HOST}/mysql:/var/lib/mysql
+      - ${MYSQL_ENTRYPOINT_INITDB}:/docker-entrypoint-initdb.d
+    ports:
+      - "${MYSQL_PORT}:3306"
+      
   workspace:
     build: 
       context: ./workspace
