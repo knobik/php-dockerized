@@ -53,6 +53,7 @@ services:
     container_name: phpmyadmin
     environment:
       - PMA_HOST=mysql
+      - PMA_PORT=${MYSQL_PORT}
     depends_on:
       - mysql
     restart: always
