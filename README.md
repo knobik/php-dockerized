@@ -13,5 +13,5 @@ $ docker-compose up
 # ssh into workspace
 
 ```
-$ ssh dev@localhost workspace/insecure_id_rsa
+$ ssh dev@localhost -i workspace/insecure_id_rsa -o StrictHostKeyChecking=no
 ```
