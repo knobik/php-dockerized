@@ -2,7 +2,7 @@
 
 ARG PHP_VERSION
 
-FROM knobik/workspace:lastest-${PHP_VERSION}
+FROM knobik/workspace:latest-${PHP_VERSION}
 
 ARG PHP_VERSION
 
