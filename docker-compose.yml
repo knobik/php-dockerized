@@ -8,14 +8,14 @@ services:
         - "${HTTP_PORT}:80"
         - "${HTTPS_PORT}:443"
     volumes:
-        - ${CODE_BASE_DIR}:/code
+        - ${CODE_BASE_DIR}:/var/www
   php:
     build:
       context: ./php-fpm
       args:
         - PHP_VERSION=${PHP_VERSION}
     volumes:
-        - ${CODE_BASE_DIR}:/code
+        - ${CODE_BASE_DIR}:/var/www
   workspace:
     build: 
       context: ./workspace
@@ -24,6 +24,6 @@ services:
     ports:
       - "${SSH_PORT}:22"
     volumes:
-      - ${CODE_BASE_DIR}:/code
+      - ${CODE_BASE_DIR}:/var/www
     tty: true
     

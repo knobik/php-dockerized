@@ -29,7 +29,7 @@ RUN docker-php-ext-install mcrypt \
     docker-php-ext-install gd
 	
 
-WORKDIR /code
+WORKDIR /var/www
 
 CMD ["php-fpm"]
 
