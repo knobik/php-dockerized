@@ -37,6 +37,14 @@ services:
     ports:
       - "${MYSQL_PORT}:3306"
       
+  redis:
+    container_name: redis
+    image: redis
+    ports:
+      - "${REDIS_PORT}:6379"
+    volumes:
+      - ${DATA_PATH_HOST}/redis:/data
+      
   workspace:
     build: 
       context: ./workspace
