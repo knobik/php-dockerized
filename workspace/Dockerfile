@@ -20,7 +20,10 @@ RUN apt-get update -yqq && \
     pecl channel-update pecl.php.net && \
     groupadd -g ${PGID} dev && \
     useradd -u ${PUID} -g dev -m dev -G docker_env && \
-    usermod -p "*" dev
+    usermod -p "*" dev && \
+	usermod -s /bin/bash root && \
+	usermod -s /bin/bash dev && \
+	echo 'dev:dev' | chpasswd
 	
 #
 #--------------------------------------------------------------------------
@@ -32,6 +35,8 @@ RUN apt-get update -yqq && \
 # to add more Software's or remove existing one, you need to edit the
 # base image (https://github.com/knobik/workspace).
 #
+
+USER root
 
 ARG TZ=UTC
 ENV TZ ${TZ}

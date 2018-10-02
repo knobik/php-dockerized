@@ -46,6 +46,7 @@ services:
       - ${DATA_PATH_HOST}/redis:/data
       
   workspace:
+    container_name: workspace
     build: 
       context: ./workspace
       args:
