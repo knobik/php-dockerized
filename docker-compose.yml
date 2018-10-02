@@ -51,6 +51,7 @@ services:
       context: ./workspace
       args:
         - PHP_VERSION=${PHP_VERSION}
+        - NODE_VERSION=${NODE_VERSION}
     ports:
       - "${SSH_PORT}:22"
     volumes:
