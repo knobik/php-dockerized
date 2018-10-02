@@ -1,10 +1,13 @@
-# workspace forked from dev/workspace
-
 ARG PHP_VERSION
 
 FROM knobik/workspace:latest-${PHP_VERSION}
 
 ARG PHP_VERSION
+
+ARG USER_LOGIN
+ARG USER_PASSWORD
+ARG SET_USER_PASSWORD=false
+ENV SET_USER_PASSWORD ${SET_USER_PASSWORD}
 
 # Start as root
 USER root
@@ -18,12 +21,15 @@ ENV PGID ${PGID}
 # always run apt update when start and after add new source list, then clean up at end.
 RUN apt-get update -yqq && \
     pecl channel-update pecl.php.net && \
-    groupadd -g ${PGID} dev && \
-    useradd -u ${PUID} -g dev -m dev -G docker_env && \
-    usermod -p "*" dev && \
+    groupadd -g ${PGID} ${USER_LOGIN} && \
+    useradd -u ${PUID} -g ${USER_LOGIN} -m ${USER_LOGIN} -G docker_env && \
 	usermod -s /bin/bash root && \
-	usermod -s /bin/bash dev && \
-	echo 'dev:dev' | chpasswd
+	usermod -s /bin/bash ${USER_LOGIN}
+	
+# set user password
+RUN if [ ${SET_USER_PASSWORD} = true ]; then \
+    echo ${USER_LOGIN}:${USER_PASSWORD} | chpasswd \
+;fi
 	
 #
 #--------------------------------------------------------------------------
@@ -50,12 +56,12 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 USER root
 
 # Add the composer.json
-COPY ./composer.json /home/dev/.composer/composer.json
+COPY ./composer.json /home/${USER_LOGIN}/.composer/composer.json
 
-# Make sure that ~/.composer belongs to dev
-RUN chown -R dev:dev /home/dev/.composer
+# Make sure that ~/.composer belongs to ${USER_LOGIN}
+RUN chown -R ${USER_LOGIN}:${USER_LOGIN} /home/${USER_LOGIN}/.composer
 
-USER dev
+USER ${USER_LOGIN}
 
 # Check if global install need to be ran
 ARG COMPOSER_GLOBAL_INSTALL=true
@@ -82,7 +88,7 @@ RUN echo "" >> ~/.bashrc && \
 ###########################################################################
 
 # add ./vendor/bin to non-root user's bashrc (needed for phpunit)
-USER dev
+USER ${USER_LOGIN}
 
 RUN echo "" >> ~/.bashrc && \
     echo 'export PATH="/code/vendor/bin:$PATH"' >> ~/.bashrc
@@ -119,8 +125,8 @@ RUN if [ ${INSTALL_WORKSPACE_SSH} = true ]; then \
         && rm -f /tmp/id_rsa* \
         && chmod 644 /root/.ssh/authorized_keys /root/.ssh/id_rsa.pub \
     && chmod 400 /root/.ssh/id_rsa \
-    && cp -rf /root/.ssh /home/dev \
-    && chown -R dev:dev /home/dev/.ssh \
+    && cp -rf /root/.ssh /home/${USER_LOGIN} \
+    && chown -R ${USER_LOGIN}:${USER_LOGIN} /home/${USER_LOGIN}/.ssh \
 ;fi
 
 ###########################################################################
@@ -136,7 +142,7 @@ ARG INSTALL_NPM_BOWER=false
 ARG INSTALL_NPM_VUE_CLI=false
 ARG NPM_REGISTRY
 ENV NPM_REGISTRY ${NPM_REGISTRY}
-ENV NVM_DIR /home/dev/.nvm
+ENV NVM_DIR /home/${USER_LOGIN}/.nvm
 
 RUN if [ ${INSTALL_NODE} = true ]; then \
     # Install nvm (A Node Version Manager)
@@ -158,7 +164,7 @@ RUN if [ ${INSTALL_NODE} = true ]; then \
         && if [ ${INSTALL_NPM_VUE_CLI} = true ]; then \
         npm install -g @vue/cli \
         ;fi \
-        && ln -s `npm bin --global` /home/dev/.node-bin \
+        && ln -s `npm bin --global` /home/${USER_LOGIN}/.node-bin \
 ;fi
 
 # Wouldn't execute when added to the RUN statement in the above block
@@ -174,12 +180,12 @@ USER root
 
 RUN if [ ${INSTALL_NODE} = true ]; then \
     echo "" >> ~/.bashrc && \
-    echo 'export NVM_DIR="/home/dev/.nvm"' >> ~/.bashrc && \
+    echo 'export NVM_DIR="/home/${USER_LOGIN}/.nvm"' >> ~/.bashrc && \
     echo '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm' >> ~/.bashrc \
 ;fi
 
 # Add PATH for node
-ENV PATH $PATH:/home/dev/.node-bin
+ENV PATH $PATH:/home/${USER_LOGIN}/.node-bin
 
 RUN if [ ${NPM_REGISTRY} ]; then \
     . ~/.bashrc && npm config set registry ${NPM_REGISTRY} \

@@ -52,6 +52,9 @@ services:
       args:
         - PHP_VERSION=${PHP_VERSION}
         - NODE_VERSION=${NODE_VERSION}
+        - USER_LOGIN=${USER_LOGIN}
+        - USER_PASSWORD=${USER_PASSWORD}
+        - SET_USER_PASSWORD=${SET_USER_PASSWORD}
     ports:
       - "${SSH_PORT}:22"
     volumes:
